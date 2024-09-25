@@ -2,6 +2,12 @@
 /venv/
 ./venv/
 
+/main.py
+/main2.py
+/rate.py
+/rate2.py
+/chatbot_ui.py
+
 # Ignore system files
 .DS_Store
 
