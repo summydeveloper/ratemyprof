@@ -1,6 +1,5 @@
 import streamlit as st
 from tqdm import tqdm
-import pandas as pd
 from typing import List
 import datasets
 from langchain.docstore.document import Document as LangchainDocument
@@ -22,7 +21,7 @@ def load_knowledge_base():
         st.warning("Falling back to local dataset...")
         try:
             # Load from a local CSV file as a fallback
-            ds = pd.read_csv("path_to_your_local_dataset.csv")  # Update with your actual path
+          #  ds = pd.read_csv("path_to_your_local_dataset.csv")  # Update with your actual path
             st.write("Local dataset loaded successfully.")
         except FileNotFoundError:
             st.error("Local dataset not found. Please provide a valid path.")
