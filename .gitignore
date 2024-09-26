@@ -17,7 +17,16 @@ chatbot_ui.py
 ./rate.py
 ./rate2.py
 ./chatbot_ui.py
-
+./static/
+./templates/
+./special.py
+./special2.py
+./special3.py
+/static/
+/templates/
+/special.py
+/special2.py
+/special3.py
 # Ignore system files
 .DS_Store
 
