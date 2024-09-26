@@ -117,7 +117,6 @@
 # if __name__ == '__main__':
 #     main()
 
-
 import streamlit as st
 from tqdm import tqdm
 import pandas as pd
@@ -205,24 +204,15 @@ def main():
     KNOWLEDGE_VECTOR_DATABASE, embedding_model = initialize_chatbot()
 
     # User input
-    user_query = st.text_input("Ask me anything about professors and courses:")
+    user_query = st.text_input("Ask me anything about professors and courses:", key="user_query")
 
     if st.button("Send"):
         if user_query:
             with st.spinner("Processing your query..."):
                 try:
-                    # System prompt to guide responses (used internally, not in the user response)
-                    system_prompt = (
-                        "You are a rate my professor agent to help students find classes, "
-                        "that takes in user questions and answers them. "
-                        "For every user question, the top 3 professors that match the user question are returned. "
-                        "Use them to answer the question if needed."
-                    )
-
                     query_vector = embedding_model.embed_query(user_query)
                     retrieved_docs = KNOWLEDGE_VECTOR_DATABASE.similarity_search(query=user_query, k=3)
 
-                    # Constructing response without including the system prompt
                     response = "### Top Professors:\n"
                     if retrieved_docs:
                         for i, doc in enumerate(retrieved_docs):
@@ -246,9 +236,11 @@ def main():
     # Display chat history
     for message in st.session_state.messages:
         if message['role'] == 'user':
-            st.write(f"**You:** {message['content']}")
+            st.markdown(f"<div style='background-color: #d1e7dd; padding: 10px; border-radius: 5px; margin-bottom: 10px;'>"
+                        f"<strong>You:</strong> {message['content']}</div>", unsafe_allow_html=True)
         else:
-            st.write(f"**Bot:** {message['content']}")
+            st.markdown(f"<div style='background-color: #f8d7da; padding: 10px; border-radius: 5px; margin-bottom: 10px;'>"
+                        f"<strong>Bot:</strong> {message['content']}</div>", unsafe_allow_html=True)
 
 if __name__ == '__main__':
     main()
