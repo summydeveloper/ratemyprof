@@ -13,9 +13,22 @@ from langchain_community.vectorstores.utils import DistanceStrategy
 # Load knowledge base
 @st.cache_resource(show_spinner=False)
 def load_knowledge_base():
-    pd.set_option("display.max_colwidth", None)
-    ds = datasets.load_dataset("summydev/lecturersdata", split="train")
+    try:
+        st.write("Attempting to load dataset from Hugging Face...")
+        ds = datasets.load_dataset("summydev/lecturersdata", split="train")
+        st.write("Dataset loaded successfully.")
+    except Exception as e:
+        st.warning(f"Error loading dataset from Hugging Face: {str(e)}")
+        st.warning("Falling back to local dataset...")
+        try:
+            # Load from a local CSV file as a fallback
+            ds = pd.read_csv("path_to_your_local_dataset.csv")  # Update with your actual path
+            st.write("Local dataset loaded successfully.")
+        except FileNotFoundError:
+            st.error("Local dataset not found. Please provide a valid path.")
+            return []
 
+    # Process the dataset into LangchainDocument format
     RAW_KNOWLEDGE_BASE = [
         LangchainDocument(
             page_content=doc["description"],
@@ -91,18 +104,10 @@ def main():
         if user_query:
             with st.spinner("Processing your query..."):
                 try:
-                    # System prompt to guide responses (used internally, not in the user response)
-                    system_prompt = (
-                        "You are a rate my professor agent to help students find classes, "
-                        "that takes in user questions and answers them. "
-                        "For every user question, the top 3 professors that match the user question are returned. "
-                        "Use them to answer the question if needed."
-                    )
-
                     query_vector = embedding_model.embed_query(user_query)
                     retrieved_docs = KNOWLEDGE_VECTOR_DATABASE.similarity_search(query=user_query, k=3)
 
-                    # Constructing response without including the system prompt
+                    # Constructing response
                     response = "### Top Professors:\n"
                     if retrieved_docs:
                         for i, doc in enumerate(retrieved_docs):
@@ -116,8 +121,6 @@ def main():
                     st.session_state.messages.append({'role': 'user', 'content': user_query})
                     st.session_state.messages.append({'role': 'bot', 'content': response})
 
-                    # Clear input box by resetting the state
-                    st.session_state['user_query'] = ""
                 except Exception as e:
                     st.error(f"An error occurred: {str(e)}")
         else:
