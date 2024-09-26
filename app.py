@@ -444,10 +444,6 @@
 #     main()
 
 
-
-
-
-
 import streamlit as st
 from tqdm import tqdm
 import pandas as pd
@@ -461,10 +457,11 @@ from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_community.vectorstores.utils import DistanceStrategy
 
 # Load knowledge base
-@st.cache_data(show_spinner=False)
+@st.cache_resource(show_spinner=False)
 def load_knowledge_base():
     pd.set_option("display.max_colwidth", None)
     ds = datasets.load_dataset("summydev/lecturersdata", split="train")
+
     RAW_KNOWLEDGE_BASE = [
         LangchainDocument(
             page_content=doc["description"],
@@ -476,6 +473,7 @@ def load_knowledge_base():
             }
         ) for doc in tqdm(ds)
     ]
+
     return RAW_KNOWLEDGE_BASE
 
 # Split documents
@@ -511,7 +509,7 @@ def initialize_chatbot():
 
     embedding_model = HuggingFaceEmbeddings(
         model_name=EMBEDDING_MODEL_NAME,
-        multi_process=False,  # Set to False
+        multi_process=False,
         model_kwargs={"device": "cpu"},
         encode_kwargs={"normalize_embeddings": True},
     )
@@ -539,9 +537,18 @@ def main():
         if user_query:
             with st.spinner("Processing your query..."):
                 try:
+                    # System prompt to guide responses (used internally, not in the user response)
+                    system_prompt = (
+                        "You are a rate my professor agent to help students find classes, "
+                        "that takes in user questions and answers them. "
+                        "For every user question, the top 3 professors that match the user question are returned. "
+                        "Use them to answer the question if needed."
+                    )
+
                     query_vector = embedding_model.embed_query(user_query)
                     retrieved_docs = KNOWLEDGE_VECTOR_DATABASE.similarity_search(query=user_query, k=3)
 
+                    # Constructing response without including the system prompt
                     response = "### Top Professors:\n"
                     if retrieved_docs:
                         for i, doc in enumerate(retrieved_docs):
@@ -555,10 +562,10 @@ def main():
                     st.session_state.messages.append({'role': 'user', 'content': user_query})
                     st.session_state.messages.append({'role': 'bot', 'content': response})
 
+                    # Clear input box by resetting the state
+                    st.session_state['user_query'] = ""
                 except Exception as e:
                     st.error(f"An error occurred: {str(e)}")
-                    import traceback
-                    st.error(traceback.format_exc())
         else:
             st.warning("Please enter a query.")
 
