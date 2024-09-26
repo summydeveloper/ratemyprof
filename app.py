@@ -410,7 +410,7 @@ def initialize_chatbot():
 
 # Main function
 def main():
-    st.title("Course & Instructor Chatbot")
+    st.title("Rate my PROF AI")
     KNOWLEDGE_VECTOR_DATABASE, embedding_model = initialize_chatbot()
 
     if KNOWLEDGE_VECTOR_DATABASE is None or embedding_model is None:
