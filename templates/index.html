@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <title>Chatbot</title>
+</head>
+<body>
+    <div class="chat-container">
+        <div id="chat-box"></div>
+        <input type="text" id="user-input" placeholder="Ask me anything..." />
+        <button id="send-button">Send</button>
+    </div>
+
+    <script>
+        document.getElementById("send-button").onclick = function() {
+            let userInput = document.getElementById("user-input").value;
+            document.getElementById("chat-box").innerHTML += `<div>User: ${userInput}</div>`;
+            document.getElementById("user-input").value = '';
+
+            fetch('/ask', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: 'query=' + encodeURIComponent(userInput)
+            })
+            .then(response => response.json())
+            .then(data => {
+                data.forEach(doc => {
+                    document.getElementById("chat-box").innerHTML += `
+                        <div>
+                            <strong>Description:</strong> ${doc.description}<br>
+                            <strong>Instructor:</strong> ${doc.instructor}<br>
+                            <strong>Course Title:</strong> ${doc.course_title}<br>
+                            <strong>Source:</strong> ${doc.source}<br>
+                        </div>
+                        <hr>
+                    `;
+                });
+            });
+        };
+    </script>
+</body>
+</html>

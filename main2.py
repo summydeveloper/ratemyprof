@@ -195,8 +195,7 @@ from transformers import AutoTokenizer
 from langchain_community.vectorstores import FAISS
 from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_community.vectorstores.utils import DistanceStrategy
-import numpy as np
-import plotly.express as px
+ 
 
 def main():
     pd.set_option("display.max_colwidth", None)  # This will be helpful when visualizing retriever outputs
@@ -287,7 +286,7 @@ def main():
     retrieved_docs = KNOWLEDGE_VECTOR_DATABASE.similarity_search(query=user_query, k=5)
     
     for i, doc in enumerate(retrieved_docs):
-        print(f"\n==================================Top document {i+1}==================================")
+        print(f"\n==================================Search Results {i+1}==================================")
         print(doc.page_content)
         print("==================================Instructor==================================")
         print(doc.metadata.get("instructor_name", "N/A"))  # Safely access the instructor's name
